@@ -1,0 +1,123 @@
+<!-- Html Definition -->
+<div class="c-container">
+  <div id="js-container-list" class="c-validation-files">
+
+
+  </div>
+</div>
+<!-- End Html -->
+
+<!-- Style Definitions -->
+<style>
+  .c-container {
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  li {
+    list-style: none;
+  }
+
+  .correct, .incorrect {
+    padding: 10px 8px;
+    margin-bottom: 5px;
+    background-color: #FAFAFA;
+    border-radius: 4px;
+  }
+  
+  .correct{
+      color: #13DE95;
+      font-size: 14px;
+    } 
+
+  .incorrect{
+      color: #DE2B13;
+      font-size: 14px;
+      font-weight: bold;
+    }
+</style>
+<!-- End Style -->
+
+<!-- Javascript Definitions -->
+<script>
+  // Definition Data
+  const pageRequire = ["Design [Done]", "Design [In Progress]", "Design [Archive]", "Components"];
+
+  // Evento que escucha la respuesta de Figma
+  onmessage = (event) => {
+    const fileData = event.data.pluginMessage ;
+    const htmlA = validatePages(pageRequire, fileData.pages)
+    const htmlB = htmlA.concat(validateStyle("Color", 3, fileData.paintStyles))
+    const htmlC = htmlB.concat(validateStyle("Texto", 3, fileData.textStyles))
+    refreshUI(htmlC);
+  }
+  
+  // Definition Function
+  const validatePages = (requirePages, pagesList) => {
+    // Este metodo valida que exista las paginas requeridas.
+    const htmlData = [];
+  
+    for (let index = 0; index < requirePages.length; index++) {
+      const data = requirePages[index];
+      const pageValidate = pagesList.find(pagesList => pagesList === data)
+      if(typeof pageValidate == 'undefined') {
+        htmlData.push(createTag("Li","❌ Crear la pagina "+data, "incorrect"));
+      } else {
+        htmlData.push(createTag("Li","✅ Crear la pagina "+data, "correct"));
+      }
+    }
+    return htmlData
+  }
+
+  const validateStyle = (type, numberRequire, styleList) => {
+    // Este metodo valida que exista las paginas requeridas.
+    const htmlData = [];
+
+    if(styleList.length === 0){
+      htmlData.push(createTag("Li","❌ Crear estilos de "+type, "incorrect"));
+    } else {
+      htmlData.push(createTag("Li","✅ Crear estilos de "+type, "correct"));
+    }
+
+    if(styleList.length < numberRequire){
+      htmlData.push(createTag("Li","❌ Crear "+numberRequire+" o más estilos de "+type, "incorrect"));
+    } else {
+      htmlData.push(createTag("Li","✅ Crear "+numberRequire+" o más estilos de "+type, "correct"));
+    }
+
+    return htmlData
+  }
+
+
+
+  const watchValidation = () => {
+    // This Method send validation check.
+    parent.postMessage({ pluginMessage: { type: 'check-file'} }, '*')
+  }
+
+  const createTag = (tag, text, styleClass) => {
+    // This Method create html node
+    var x = document.createElement(tag);  
+        x.classList.add(styleClass);                     
+    var t = document.createTextNode(text);    // Create a text node
+    x.appendChild(t); 
+    return x;
+  }
+
+  const refreshUI = (htmlData) => {
+    const container = document.getElementById('js-container-list');
+    container.innerHTML="";
+
+    for (let index = 0; index < htmlData.length; index++) {
+      const htmlD = htmlData[index];
+      container.appendChild(htmlD);
+    }
+
+  }
+
+  // Ejecucion del watchValidation
+  setInterval(watchValidation, 1000);
+
+</script>
+<!-- End Javascript  -->
+
+

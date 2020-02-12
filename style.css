@@ -1,0 +1,15 @@
+#check {
+    background-color: #3956BD;
+    color: white;
+  }
+
+.correct{
+    color: #13DE70;
+    font-size: 18px;
+  }
+
+.incorrect{
+    color: red;
+    font-size: 18px;
+    font-weight: bold;
+  }
